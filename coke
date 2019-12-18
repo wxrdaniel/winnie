@@ -1,0 +1,48 @@
+import requests
+import re
+
+basic_url='https://rate.tmall.com/list_detail_rate.htm?itemId=526924651900&spuId=474087303&sellerId=725677994&order=3&currentPage=1'
+
+headers={
+         'Referer':'https://chaoshi.detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.2ae9624eSmJCDj&id=526924651900&user_id=725677994&cat_id=2&is_b=1&rn=0edb675b7ea0f956eb58c81d5aaf0b0c',
+         "cookie":"cna=xSGBFnDB+1ICAbfBgVxkOK+O; t=8718a419c3db504592b47c2381e74875; _tb_token_=e3e556390d65e; cookie2=12cfc0fde74638b349299ffb5ef869cc; _m_h5_tk=d1a1951f88afe812f36d9758d340859d_1576686630703; _m_h5_tk_enc=b4ad93aa127334502ee138d97655427d; sm4=310100; l=dBaL2pcPqqn0468MBOfw-urza77tgIOXCsPzaNbMiICP_RBdVJLAWZLwTTt9CnGNnsM2l3uviZz3BD8nqy49lZXRFJcHQpjIjdLh.; isg=BNvb-6O_Apjt7H7sjo2HZ5D9ajlFsO-ypDcSOs0ZolrerPaOWYEuA7hqRkSHjEeq",
+         'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36'
+        }
+
+def get_page(url):
+    try:
+        r=requests.get(url,headers=headers)
+        r.raise_for_status()
+        r.encoding='utf-8'
+        return r.text
+    except exception as e:
+        print(e)
+
+def get_info(page):
+    try:
+        items=re.findall(r'"rateContent":"(.*?)"',page,re.S)
+        for item in items:
+            yield item
+    except Exception as e:
+        print(e)
+
+def save_data(datas):
+    import io
+    with io.open("coke.txt","a",encoding="utf-8")as f:
+        c=1
+        output=''
+        for data in datas:
+           output += 'comment %s,%s\n'%(c,data)
+           c+=1
+        print(output)
+        f.write(output)
+        f.close()
+
+
+basic_url=['https://rate.tmall.com/list_detail_rate.htm?itemId=526924651900&spuId=474087303&sellerId=725677994&order=3&currentPage=1']
+for url in basic_url:
+    page=get_page(url)
+    print(url)
+    print(page)
+    data=get_info(page)
+    save_data(data)
